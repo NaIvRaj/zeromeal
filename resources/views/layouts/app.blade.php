@@ -27,8 +27,8 @@
             <div class="flex justify-between h-16 relative">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}" class="text-2xl font-bold text-green-600 tracking-tighter">
-                        ZeroMeal
+                    <a href="{{ route('home') }}">
+                        <img src="{{ asset('images/logo.png') }}" alt="ZeroMeal Logo" class="h-10 w-auto">
                     </a>
                 </div>
 

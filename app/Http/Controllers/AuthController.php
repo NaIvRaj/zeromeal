@@ -41,6 +41,34 @@ class AuthController extends Controller
         ]);
     }
 
+    public function showRegisterForm()
+    {
+        if (Session::has('api_token')) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'nama'     => 'required|string|max:100',
+            'email'    => 'required|email|max:50',
+            'password' => 'required|confirmed|min:8',
+            'no_telepon' => 'required|string|max:15',
+        ]);
+
+        $result = $this->apiService->register($request->only('nama', 'email', 'password', 'no_telepon', 'password_confirmation'));
+
+        if ($result['success']) {
+            return redirect()->route('dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => $result['message'],
+        ])->withInput($request->except('password', 'password_confirmation'));
+    }
+
     public function logout()
     {
         // Optional: Call API logout endpoint if it exists

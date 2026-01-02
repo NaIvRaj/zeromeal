@@ -42,22 +42,55 @@ class ApiService
             'password' => $password,
         ]);
 
+        \Illuminate\Support\Facades\Log::info('Login Response:', ['status' => $response->status(), 'body' => $response->json()]);
+
         if ($response->successful()) {
-            $data = $response->json();
-            // Assumes the API returns 'token' or 'access_token'
-            $token = $data['token'] ?? $data['access_token'] ?? null;
-            $user = $data['user'] ?? null;
+            $responseData = $response->json();
+            
+            // Handle multiple potential response structures
+            $token = $responseData['token'] ?? $responseData['access_token'] ?? $responseData['data']['token'] ?? null;
+            $user = $responseData['user'] ?? $responseData['data']['user'] ?? null;
 
             if ($token) {
                 Session::put('api_token', $token);
                 if ($user) {
                     Session::put('user', $user);
                 }
-                return ['success' => true, 'data' => $data];
+                return ['success' => true, 'data' => $responseData];
             }
         }
 
         return ['success' => false, 'message' => $response->json()['message'] ?? 'Login failed'];
+    }
+
+    /**
+     * Handle registration.
+     */
+    public function register($data)
+    {
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+        ])->post($this->baseUrl . '/register', $data);
+
+        \Illuminate\Support\Facades\Log::info('Register Response:', ['status' => $response->status(), 'body' => $response->json()]);
+
+        if ($response->successful()) {
+            $responseData = $response->json();
+            
+            // Handle multiple potential response structures
+            $token = $responseData['token'] ?? $responseData['access_token'] ?? $responseData['data']['token'] ?? null;
+            $user = $responseData['user'] ?? $responseData['data']['user'] ?? null;
+
+            if ($token) {
+                Session::put('api_token', $token);
+                if ($user) {
+                    Session::put('user', $user);
+                }
+                return ['success' => true, 'data' => $responseData];
+            }
+        }
+
+        return ['success' => false, 'message' => $response->json()['message'] ?? 'Registration failed'];
     }
 
     public function get($endpoint, $params = [])
